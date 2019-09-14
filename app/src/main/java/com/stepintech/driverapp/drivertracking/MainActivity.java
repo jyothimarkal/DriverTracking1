@@ -4,6 +4,7 @@ package com.stepintech.driverapp.drivertracking;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -118,15 +119,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTrackerService() {
-
-        ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+      ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = mgr.getActiveNetworkInfo();
 
         if (netInfo != null) {
             if (netInfo.isConnected()) {
                 // Internet Available
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    startForegroundService(new Intent(this, TrackingService.class));
+                // Internet Available
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Log.d("startTrackerService :", " startTrackerService111 ");
+                    //startForegroundService(new Intent(this, TrackingService.class));
+                    startForegroundService( new Intent(this, TrackingService.class));
+                 }
                 else
                     startService(new Intent(this, TrackingService.class));
 

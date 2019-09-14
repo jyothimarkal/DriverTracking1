@@ -49,6 +49,7 @@ public class TrackingService extends Service {
 
     public static final String TAG = TrackingService.class.getSimpleName();
 
+
     @Override
     public IBinder onBind(Intent intent) {return null;}
 
@@ -59,7 +60,10 @@ public class TrackingService extends Service {
         Log.d("TrackingService:","TrackingService111");
         /////////
        // FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startMyOwnForeground();
+        else
+            buildNotification();
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -89,10 +93,12 @@ public class TrackingService extends Service {
     }
 
     private void startMyOwnForeground(){
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
             String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
             String channelName = "My Background Service";
-            NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+            NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
             chan.setLightColor(Color.BLUE);
             chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -107,10 +113,35 @@ public class TrackingService extends Service {
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setOngoing(true)
                     .build();
-            startForeground(2, notification);
-        }
-    }
+           startForeground(2, notification);
 
+         /*   NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannel(mNotifyManager);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "YOUR_TEXT_HERE")
+                    .setSmallIcon(android.R.drawable.stat_sys_download)
+                    .setContentTitle("App is running in background")
+                    .setPriority(NotificationManager.IMPORTANCE_MAX)
+                    .setOngoing(true);
+
+            mNotifyManager.notify(123455, mBuilder.build());*/
+
+
+        }
+
+
+    }
+    @TargetApi(26)
+    private void createChannel(NotificationManager notificationManager) {
+        String name = "FileDownload";
+        String description = "Notifications for download status";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+        NotificationChannel mChannel = new NotificationChannel(name, name, importance);
+        mChannel.setDescription(description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(mChannel);
+    }
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
